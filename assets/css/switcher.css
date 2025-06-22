@@ -1,0 +1,67 @@
+.sls-language-switcher {
+  position: relative;
+  display: inline-block;
+  font-family: Arial, sans-serif;
+}
+
+.sls-current-language {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  background: transparent;
+  cursor: pointer;
+  user-select: none;
+}
+
+.sls-current-language:hover {
+  background: none !important;
+}
+
+.sls-flag {
+  font-size: 16px;
+  margin-right: 6px;
+}
+
+.sls-name {
+  margin-right: 6px;
+  color: #fff;
+}
+
+.sls-arrow {
+  font-size: 10px;
+  color: #fff;
+}
+
+.sls-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  min-width: 100%;
+  background: #009739;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  display: none;
+  z-index: 1000;
+}
+
+.sls-language-option {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  text-decoration: none;
+  color: #333;
+  border-bottom: 1px solid #eee;
+}
+
+.sls-language-option:last-child {
+  border-bottom: none;
+}
+
+.sls-language-switcher:hover .sls-dropdown {
+  display: block;
+}
+
+@media (max-width: 600px) {
+  .sls-flag {
+    display: none;
+  }
+}

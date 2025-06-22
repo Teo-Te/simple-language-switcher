@@ -1,0 +1,367 @@
+/* Main admin page styling */
+.sls-admin-page {
+  max-width: 1200px;
+  margin: 20px 0;
+}
+
+.sls-admin-page h1 {
+  margin-bottom: 20px;
+  color: #23282d;
+}
+
+/* Language form styling */
+#language-form {
+  background: #fff;
+  border: 1px solid #ccd0d4;
+  border-radius: 4px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+/* Enhanced table styling */
+.sls-languages-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+.sls-languages-table th,
+.sls-languages-table td {
+  padding: 12px 8px;
+  text-align: left;
+  border-bottom: 1px solid #e1e1e1;
+  vertical-align: middle;
+}
+
+.sls-languages-table th {
+  background: #f9f9f9;
+  font-weight: 600;
+  color: #23282d;
+  border-bottom: 2px solid #ccd0d4;
+}
+
+.sls-languages-table tbody tr:hover {
+  background: #f9f9f9;
+}
+
+/* Input field styling */
+.sls-languages-table input[type="text"] {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  font-size: 13px;
+  transition: border-color 0.15s ease-in-out;
+}
+
+.sls-languages-table input[type="text"]:focus {
+  border-color: #0073aa;
+  box-shadow: 0 0 0 1px #0073aa;
+  outline: none;
+}
+
+/* Flag select dropdown */
+.lang-flag {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  font-size: 13px;
+  background: #fff;
+}
+
+.lang-flag option {
+  padding: 4px;
+  font-size: 14px;
+}
+
+/* Custom flag input */
+.custom-flag {
+  margin-top: 5px;
+  font-family: monospace;
+  background: #f9f9f9;
+}
+
+.custom-flag:focus {
+  background: #fff;
+}
+
+/* Flag preview */
+.flag-preview {
+  font-size: 20px;
+  text-align: center;
+  min-width: 40px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Checkbox styling */
+.sls-languages-table input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+/* Button styling */
+.sls-form-buttons {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #e1e1e1;
+}
+
+#add-language {
+  background: #0073aa;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: background-color 0.2s;
+}
+
+#add-language:hover {
+  background: #005a87;
+}
+
+.remove-lang {
+  background: #dc3232;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background-color 0.2s;
+}
+
+.remove-lang:hover {
+  background: #a00;
+}
+
+/* Save button override */
+.button-primary {
+  background: #00a32a !important;
+  border-color: #00a32a !important;
+  color: #fff !important;
+  padding: 8px 16px !important;
+  font-size: 13px !important;
+}
+
+.button-primary:hover {
+  background: #008a20 !important;
+  border-color: #008a20 !important;
+}
+
+/* Flag help section */
+.flag-help {
+  background: #f8f9fa;
+  border: 1px solid #e1e1e1;
+  border-radius: 4px;
+  padding: 20px;
+  margin-top: 20px;
+}
+
+.flag-help h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #23282d;
+  font-size: 16px;
+}
+
+.flag-help ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  column-count: 3;
+  column-gap: 20px;
+  font-family: "Courier New", monospace;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.flag-help li {
+  margin-bottom: 8px;
+  break-inside: avoid;
+  background: #fff;
+  padding: 6px 8px;
+  border-radius: 3px;
+  border: 1px solid #e1e1e1;
+}
+
+/* Responsive design */
+@media screen and (max-width: 1024px) {
+  .flag-help ul {
+    column-count: 2;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .sls-languages-table {
+    font-size: 12px;
+  }
+
+  .sls-languages-table th,
+  .sls-languages-table td {
+    padding: 8px 4px;
+  }
+
+  .flag-help ul {
+    column-count: 1;
+  }
+
+  .sls-form-buttons {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .sls-form-buttons .button {
+    margin-bottom: 8px;
+  }
+}
+
+/* Loading state */
+.sls-loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.sls-loading::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+  border: 2px solid #0073aa;
+  border-radius: 50%;
+  border-top-color: transparent;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Success/error messages */
+.sls-message {
+  padding: 10px 15px;
+  margin: 15px 0;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.sls-message.success {
+  background: #d4edda;
+  border: 1px solid #c3e6cb;
+  color: #155724;
+}
+
+.sls-message.error {
+  background: #f8d7da;
+  border: 1px solid #f5c6cb;
+  color: #721c24;
+}
+
+/* Form validation */
+.sls-languages-table input.invalid {
+  border-color: #dc3232;
+  box-shadow: 0 0 0 1px #dc3232;
+}
+
+.sls-languages-table .error-message {
+  color: #dc3232;
+  font-size: 11px;
+  margin-top: 2px;
+  display: block;
+}
+
+/* Empty state */
+.sls-empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: #666;
+}
+
+.sls-empty-state h3 {
+  margin-bottom: 10px;
+  color: #23282d;
+}
+
+/* Tooltip styling */
+.sls-tooltip {
+  position: relative;
+  cursor: help;
+}
+
+.sls-tooltip:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #23282d;
+  color: white;
+  padding: 6px 8px;
+  border-radius: 3px;
+  font-size: 12px;
+  white-space: nowrap;
+  z-index: 1000;
+}
+
+.sls-tooltip:hover::before {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 4px solid transparent;
+  border-top-color: #23282d;
+  margin-bottom: -4px;
+}
+
+/* Header actions */
+.sls-header-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.sls-header-actions .button {
+  margin-left: 10px;
+}
+
+/* Language code formatting */
+.lang-code {
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+/* Active language indicator */
+.sls-languages-table tr.active-language {
+  background: #f0f8f0;
+}
+
+.sls-languages-table tr.active-language td {
+  border-bottom-color: #c3e6cb;
+}
+
+.sls-languages-table .status-cell {
+  text-align: center;
+  font-weight: bold;
+}
+
+.sls-languages-table .status-cell span {
+  padding: 4px 8px;
+  border-radius: 3px;
+  font-size: 11px;
+}
