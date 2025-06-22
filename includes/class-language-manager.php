@@ -167,12 +167,7 @@ class SLS_Language_Manager {
         // Only update if cookie doesn't match page locale
         if ($current_cookie !== $page_locale) {
             error_log("SLS Cookie Sync: Updating cookie from '{$current_cookie}' to '{$page_locale}'");
-            
-            // Set the new locale (same as language switcher)
             $this->set_current_locale($page_locale);
-            
-            // IMPORTANT: Trigger locale change for Loco Translate
-            $this->trigger_locale_change($page_locale);
         } else {
             error_log("SLS Cookie Sync: Cookie already matches page locale: {$page_locale}");
         }
