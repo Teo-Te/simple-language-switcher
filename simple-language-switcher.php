@@ -1,8 +1,8 @@
 <?php
 /**
- * Plugin Name: Simple Language Switcher
+ * Plugin Name: Simple Language Switcher by Teo
  * Description: Simple language switcher for Loco Translate ONLY
- * Version: 1.0.0
+ * Version: 1.1.0
  * Author: Teo NIV
  */
 

@@ -179,37 +179,66 @@ class SLS_Language_Manager {
             return home_url('/');
         }
         
-        // For other languages, look for pages with that locale
-        $pages_with_locale = get_posts([
+        // Extract language code from locale (e.g., it_IT -> it)
+        $lang_code = substr($locale, 0, 2);
+        
+        // Define home page patterns
+        $home_patterns = [
+            $lang_code,                                    // it, sq, de
+            strtolower(str_replace('_', '-', $locale)),   // it-it, sq-al
+            'home-' . $lang_code,                         // home-it, home-sq
+            'index-' . $lang_code,                        // index-it, index-sq
+        ];
+        
+        // Look for pages with home-like slugs AND the correct locale
+        foreach ($home_patterns as $pattern) {
+            $page = get_page_by_path($pattern);
+            if ($page) {
+                $page_locale = get_field('language_locale', $page->ID);
+                if ($page_locale === $locale) {
+                    return get_permalink($page->ID);
+                }
+            }
+        }
+        
+        // If no pattern match, look for pages with 'home' in title AND correct locale
+        $home_pages = get_posts([
             'post_type' => 'page',
             'post_status' => 'publish',
-            'posts_per_page' => -1,
+            'posts_per_page' => 5,
             'meta_query' => [
                 [
                     'key' => 'language_locale',
                     'value' => $locale,
                     'compare' => '='
                 ]
-            ]
+            ],
+            's' => 'home' // Search for 'home' in title/content
         ]);
         
-        if (!empty($pages_with_locale)) {
-            // Look for home-like patterns first
-            $home_patterns = [
-                strtolower(str_replace('_', '-', $locale)), // it-it
-                substr($locale, 0, 2), // it
-            ];
+        if (!empty($home_pages)) {
+            return get_permalink($home_pages[0]->ID);
+        }
+        
+        // Last resort: look for any page with the language pattern in slug
+        foreach ($home_patterns as $pattern) {
+            $pages = get_posts([
+                'post_type' => 'page',
+                'post_status' => 'publish',
+                'posts_per_page' => 1,
+                'name' => $pattern,
+                'meta_query' => [
+                    [
+                        'key' => 'language_locale',
+                        'value' => $locale,
+                        'compare' => '='
+                    ]
+                ]
+            ]);
             
-            foreach ($pages_with_locale as $page) {
-                foreach ($home_patterns as $pattern) {
-                    if ($page->post_name === $pattern) {
-                        return get_permalink($page->ID);
-                    }
-                }
+            if (!empty($pages)) {
+                return get_permalink($pages[0]->ID);
             }
-            
-            // If no pattern match, use the first page with that locale
-            return get_permalink($pages_with_locale[0]->ID);
         }
         
         // Fallback to main home

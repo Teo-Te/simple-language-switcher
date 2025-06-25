@@ -1,2 +1,8 @@
 Need to check the product_cat locale filtering,
 Need to check filter by price
+
+Blog sidebar,
+Blog Replies,
+Blog navigation,
+Privacy policy translation on loco
+Bold style for the navbar on all pages (shop and blog do not work)
