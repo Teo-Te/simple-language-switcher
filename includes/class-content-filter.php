@@ -19,9 +19,14 @@ class SLS_Content_Filter {
         add_filter('get_term', [$this, 'translate_category_globally'], 10, 2);
         add_filter('get_terms', [$this, 'translate_categories_in_array'], 10, 2);
 
-        
         // Add debug info to admin bar for testing
         add_action('admin_bar_menu', [$this, 'add_debug_to_admin_bar'], 999);
+
+        // Filter blog navigation
+        add_filter('get_previous_post_where', [$this, 'filter_adjacent_post_where'], 10, 5);
+        add_filter('get_next_post_where', [$this, 'filter_adjacent_post_where'], 10, 5);
+        add_filter('get_previous_post_join', [$this, 'filter_adjacent_post_join'], 10, 5);
+        add_filter('get_next_post_join', [$this, 'filter_adjacent_post_join'], 10, 5);
     }
     
     /**
@@ -534,5 +539,61 @@ class SLS_Content_Filter {
                 'href'  => '#',
             ]);
         }
+    }
+
+    /**
+     * Filter the WHERE clause for adjacent posts (previous/next)
+     */
+    public function filter_adjacent_post_where($where, $in_same_term, $excluded_terms, $taxonomy, $post) {
+        // Skip admin
+        if (is_admin()) {
+            return $where;
+        }
+        
+        // Only filter blog posts
+        if ($post->post_type !== 'post') {
+            return $where;
+        }
+        
+        global $wpdb;
+        
+        $current_locale = $this->manager->get_current_locale();
+        
+        // Add locale filtering to WHERE clause
+        $locale_where = " AND (
+            (pm_locale.meta_value = '%s') OR 
+            (pm_locale.meta_value = 'all') OR 
+            (pm_locale.meta_value IS NULL)
+        )";
+        
+        $where .= $wpdb->prepare($locale_where, $current_locale);
+        
+        error_log("SLS Blog Nav: Filtered adjacent post WHERE for locale: {$current_locale}");
+        
+        return $where;
+    }
+
+    /**
+     * Filter the JOIN clause for adjacent posts (previous/next)
+     */
+    public function filter_adjacent_post_join($join, $in_same_term, $excluded_terms, $taxonomy, $post) {
+        // Skip admin
+        if (is_admin()) {
+            return $join;
+        }
+        
+        // Only filter blog posts
+        if ($post->post_type !== 'post') {
+            return $join;
+        }
+        
+        global $wpdb;
+        
+        // Add JOIN for language_locale meta field
+        $locale_join = " LEFT JOIN {$wpdb->postmeta} AS pm_locale ON (p.ID = pm_locale.post_id AND pm_locale.meta_key = 'language_locale')";
+        
+        $join .= $locale_join;
+        
+        return $join;
     }
 }

@@ -13,6 +13,7 @@ class SLS_Language_Manager {
         add_action('wp_ajax_sls_check_language_status', [$this, 'check_language_status_ajax']);
         add_action('init', [$this, 'handle_language_switch']);
         add_action('wp', [$this, 'sync_cookie_with_page_locale'], 5);
+        add_action('wp_footer', [$this, 'add_homepage_redirect_js']);
        
     }
     
@@ -399,6 +400,44 @@ class SLS_Language_Manager {
             'ja' => '&#127471;&#127477;', // 🇯🇵 Japan
             'ar' => '&#127462;&#127466;', // 🇦🇪 UAE (for Arabic)
         ];
+    }
+
+    public function add_homepage_redirect_js() {
+        if (is_admin()) {
+            return;
+        }
+        
+        $current_locale = $this->get_current_locale();
+        
+        // If English, no need for JavaScript
+        if ($current_locale === 'en_US') {
+            return;
+        }
+        
+        $language_home = $this->get_home_page_for_locale($current_locale);
+        ?>
+        <script type="text/javascript">
+        jQuery(document).ready(function($) {
+            // Redirect any links that point to home page
+            $('a[href="/"], a[href="<?php echo home_url('/'); ?>"], a[href="<?php echo home_url(); ?>"]').each(function() {
+                var $link = $(this);
+                var originalHref = $link.attr('href');
+                
+                // Update href to language-specific homepage
+                $link.attr('href', '<?php echo esc_js($language_home); ?>');
+                
+                console.log('SLS: Updated home link from', originalHref, 'to', '<?php echo esc_js($language_home); ?>');
+            });
+            
+            // Handle dynamically created links (like Woodmart elements)
+            $(document).on('click', 'a[href="/"], a[href="<?php echo home_url('/'); ?>"], a[href="<?php echo home_url(); ?>"]', function(e) {
+                e.preventDefault();
+                window.location.href = '<?php echo esc_js($language_home); ?>';
+                console.log('SLS: Redirected home click to', '<?php echo esc_js($language_home); ?>');
+            });
+        });
+        </script>
+        <?php
     }
 }
 

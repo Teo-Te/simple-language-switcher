@@ -180,6 +180,8 @@ jQuery(document).ready(function ($) {
         .done(function (response) {
           if (response.success && response.data.redirect_url) {
             // Always redirect to the home page of the selected language
+            localStorage.clear();
+            sessionStorage.clear();
             window.location.href = response.data.redirect_url;
           } else {
             // Fallback: just reload the page

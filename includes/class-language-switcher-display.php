@@ -26,8 +26,7 @@ class SLS_Switcher_Display {
         $this->display_switcher();
         return ob_get_clean();
     }
-    
-    // NEW: Generate language switch URL
+
     public function get_language_url($target_locale) {
         return add_query_arg('switch_lang', $target_locale);
     }

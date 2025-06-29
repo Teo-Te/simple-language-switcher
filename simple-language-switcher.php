@@ -24,12 +24,14 @@ class SimpleLanguageSwitcher {
         require_once SLS_PLUGIN_PATH . 'includes/class-language-switcher-display.php';
         require_once SLS_PLUGIN_PATH . 'includes/class-locale-handler.php';
         require_once SLS_PLUGIN_PATH . 'includes/class-content-filter.php';
+        require_once plugin_dir_path(__FILE__) . 'includes/class-theme-integration.php';
     }
     
     public function init() {
         new SLS_Language_Manager();
         new SLS_Switcher_Display();
-        new SLS_Locale_Handler(); // This handles translations
+        new SLS_Locale_Handler();
+        new SLS_Theme_Integration();
         
         // Initialize content filter AFTER locale handler
         $GLOBALS['sls_content_filter'] = new SLS_Content_Filter();
