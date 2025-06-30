@@ -1,6 +1,3 @@
-Products word not getting translated on shop page
-Searching - categories word, and the actual categories cannot be searched in different languages
-
 ALL OF THIS BECASUE OF THE FUCKING THEME :)
 
 sb forgot to duplicate and translate the contact forms for each contact page

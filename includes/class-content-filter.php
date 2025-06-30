@@ -152,6 +152,8 @@ class SLS_Content_Filter {
             return;
         }
         
+        // ADD THE MISSING VARIABLE:
+        $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 10);
         $is_widget_context = false;
         
         foreach ($backtrace as $trace) {
@@ -161,6 +163,7 @@ class SLS_Content_Filter {
                     strpos($context, 'Widget') !== false ||
                     strpos($context, 'woodmart') !== false) {
                     $is_widget_context = true;
+                    error_log("SLS Nuclear Filter: Found widget context: {$context}");
                     break;
                 }
             }
