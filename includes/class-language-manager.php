@@ -74,7 +74,7 @@ class SLS_Language_Manager {
     
     public function set_current_locale($locale) {
         setcookie($this->cookie_name, $locale, time() + (30 * DAY_IN_SECONDS), '/');
-        $_COOKIE[$this->cookie_name] = $locale; // Set for current request
+        $_COOKIE[$this->cookie_name] = $locale;
     }
     
     public function get_current_language() {
@@ -141,24 +141,19 @@ class SLS_Language_Manager {
         // Get the page's language_locale ACF field
         $page_locale = get_field('language_locale', $post->ID);
         
-        error_log("SLS Cookie Sync: Page {$post->ID} ({$post->post_name}) has locale: " . ($page_locale ?: 'none'));
-        
         // If page is set to 'all', don't change the cookie - leave it as is
         if ($page_locale === 'all') {
-            error_log("SLS Cookie Sync: Page set to 'all' - keeping current cookie");
             return;
         }
         
         // If no ACF field set, don't change the cookie (backwards compatibility)
         if (!$page_locale) {
-            error_log("SLS Cookie Sync: No ACF field set - keeping current cookie");
             return;
         }
         
         // Check if this locale is valid in our language settings
         $languages = $this->get_languages();
         if (!isset($languages[$page_locale]) || !$languages[$page_locale]['active']) {
-            error_log("SLS Cookie Sync: Locale '{$page_locale}' not valid or not active");
             return;
         }
         
@@ -167,10 +162,7 @@ class SLS_Language_Manager {
         
         // Only update if cookie doesn't match page locale
         if ($current_cookie !== $page_locale) {
-            error_log("SLS Cookie Sync: Updating cookie from '{$current_cookie}' to '{$page_locale}'");
             $this->set_current_locale($page_locale);
-        } else {
-            error_log("SLS Cookie Sync: Cookie already matches page locale: {$page_locale}");
         }
     }
 
@@ -265,7 +257,7 @@ class SLS_Language_Manager {
             return;
         }
         
-        // NEW: Install language packs for new languages
+        //Install language packs for new languages
         $installation_results = $this->install_language_packs($languages);
         
         // Update the plugin's language settings
@@ -289,7 +281,7 @@ class SLS_Language_Manager {
         
         foreach ($new_languages as $locale => $lang_data) {
             if (!$lang_data['active']) {
-                continue; // Skip inactive languages
+                continue;
             }
             
             $locale = $lang_data['locale'];
@@ -303,10 +295,8 @@ class SLS_Language_Manager {
             // Try to install the language pack
             if ($this->install_language_pack($locale)) {
                 $results['installed'][] = $locale;
-                error_log("SLS: Successfully installed language pack for {$locale}");
             } else {
                 $results['failed'][] = $locale;
-                error_log("SLS: Failed to install language pack for {$locale}");
             }
         }
         
@@ -322,12 +312,10 @@ class SLS_Language_Manager {
         $result = wp_download_language_pack($locale);
         
         if (is_wp_error($result)) {
-            error_log("SLS: Error installing {$locale}: " . $result->get_error_message());
             return false;
         }
         
         if ($result === false) {
-            error_log("SLS: Language pack for {$locale} not available or failed to install");
             return false;
         }
         
@@ -425,15 +413,13 @@ class SLS_Language_Manager {
                 
                 // Update href to language-specific homepage
                 $link.attr('href', '<?php echo esc_js($language_home); ?>');
-                
-                console.log('SLS: Updated home link from', originalHref, 'to', '<?php echo esc_js($language_home); ?>');
+
             });
             
             // Handle dynamically created links (like Woodmart elements)
             $(document).on('click', 'a[href="/"], a[href="<?php echo home_url('/'); ?>"], a[href="<?php echo home_url(); ?>"]', function(e) {
                 e.preventDefault();
                 window.location.href = '<?php echo esc_js($language_home); ?>';
-                console.log('SLS: Redirected home click to', '<?php echo esc_js($language_home); ?>');
             });
         });
         </script>

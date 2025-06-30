@@ -1,8 +1,5 @@
-Blog Replies,
 Products word not getting translated on shop page
 Searching - categories word, and the actual categories cannot be searched in different languages
-sidebar on woocommerce both filter by price and top rated products stuck in English
-Need to check the queires on the best sellers, featured and sales products on the front page widget
 
 ALL OF THIS BECASUE OF THE FUCKING THEME :)
 

@@ -27,6 +27,10 @@ class SLS_Content_Filter {
         add_filter('get_next_post_where', [$this, 'filter_adjacent_post_where'], 10, 5);
         add_filter('get_previous_post_join', [$this, 'filter_adjacent_post_join'], 10, 5);
         add_filter('get_next_post_join', [$this, 'filter_adjacent_post_join'], 10, 5);
+
+        //Simple filter for WoodMart AJAX search suggestions
+        add_action('wp_ajax_woodmart_ajax_search', [$this, 'filter_woodmart_search_suggestions'], 1);
+        add_action('wp_ajax_nopriv_woodmart_ajax_search', [$this, 'filter_woodmart_search_suggestions'], 1);
     }
     
     /**
@@ -102,9 +106,6 @@ class SLS_Content_Filter {
         $product_ids = explode(',', $products_atts['include']);
         $filtered_ids = [];
         
-        error_log("SLS Woodmart Related: Original IDs: " . $products_atts['include']);
-        error_log("SLS Woodmart Related: Filtering for locale: {$current_locale}");
-        
         // Filter each product ID based on locale
         foreach ($product_ids as $product_id) {
             $product_id = trim($product_id);
@@ -132,89 +133,13 @@ class SLS_Content_Filter {
                 $filtered_ids[] = $product_id;
                 continue;
             }
-            
-            error_log("SLS Woodmart Related: Excluded product {$product_id} (locale: {$product_locale})");
         }
         
         // Update the include parameter with filtered IDs
-        $products_atts['include'] = implode(',', $filtered_ids);
-        
-        error_log("SLS Woodmart Related: Filtered IDs: " . $products_atts['include']);
+        $products_atts['include'] = implode(',', $filtered_ids);        
         
         return $products_atts;
     }
-    
-    /**
-     * Filter product widgets (top rated, featured, etc.)
-     */
-    // public function filter_product_widgets($meta_query, $query) {
-    //     if (is_admin()) return $meta_query;
-        
-    //     // Get the calling function to see what's triggering this
-    //     $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 8);
-    //     $is_widget_call = false;
-        
-    //     foreach ($backtrace as $trace) {
-    //         if (isset($trace['function'])) {
-    //             // Look for widget-specific AND related product function calls
-    //             if (in_array($trace['function'], [
-    //                 'get_top_rated_products',
-    //                 'get_featured_products',
-    //                 'get_sale_products',
-    //                 'get_best_selling_products',
-    //                 'widget',
-    //                 // Add related product functions
-    //                 'woocommerce_output_related_products',
-    //                 'get_related',
-    //                 'get_related_products',
-    //                 'output_related_products',
-    //                 'related_products',
-    //                 'woocommerce_related_products',
-    //                 'woocommerce_output_related_products_args',
-    //                 'get_related_products_and_upsells'
-    //             ])) {
-    //                 $is_widget_call = true;
-    //                 break;
-    //             }
-    //         }
-            
-    //         // Also check class names for related products
-    //         if (isset($trace['class'])) {
-    //             if (strpos($trace['class'], 'Related') !== false || 
-    //                 strpos($trace['class'], 'Widget') !== false) {
-    //                 $is_widget_call = true;
-    //                 break;
-    //             }
-    //         }
-    //     }
-        
-    //     // Only apply to widget calls, not shop page queries
-    //     if (!$is_widget_call) {
-    //         return $meta_query;
-    //     }
-        
-    //     $current_locale = $this->manager->get_current_locale();
-        
-    //     $meta_query[] = [
-    //         'relation' => 'OR',
-    //         [
-    //             'key'     => 'language_locale',
-    //             'value'   => $current_locale,
-    //             'compare' => '='
-    //         ],
-    //         [
-    //             'key'     => 'language_locale',
-    //             'value'   => 'all',
-    //             'compare' => '='
-    //         ],
-    //         [
-    //             'key'     => 'language_locale',
-    //             'compare' => 'NOT EXISTS'
-    //         ]
-    //     ];
-        
-    //     return $meta_query;
-    // }
 
     public function filter_all_widget_queries($query) {
         if (is_admin() || $query->is_main_query()) {
@@ -227,8 +152,6 @@ class SLS_Content_Filter {
             return;
         }
         
-        // Check if this is coming from a widget/elementor context
-        $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 15);
         $is_widget_context = false;
         
         foreach ($backtrace as $trace) {
@@ -238,7 +161,6 @@ class SLS_Content_Filter {
                     strpos($context, 'Widget') !== false ||
                     strpos($context, 'woodmart') !== false) {
                     $is_widget_context = true;
-                    error_log("SLS Nuclear Filter: Found widget context: {$context}");
                     break;
                 }
             }
@@ -247,8 +169,6 @@ class SLS_Content_Filter {
         if (!$is_widget_context) {
             return;
         }
-        
-        error_log("SLS Nuclear Filter: Filtering {$post_type} widget query");
         
         // Apply locale filtering DIRECTLY (not through filter_content_by_locale)
         $current_locale = $this->manager->get_current_locale();
@@ -290,8 +210,6 @@ class SLS_Content_Filter {
         }
         
         $query->set('meta_query', $new_meta_query);
-        
-        error_log("SLS Nuclear Filter: Applied locale filter for {$current_locale}");
     }
 
     public function translate_category_globally($term, $taxonomy) {
@@ -427,12 +345,67 @@ class SLS_Content_Filter {
             foreach ($tax_query as $tax_clause) {
                 if (isset($tax_clause['taxonomy']) && $tax_clause['taxonomy'] === 'product_cat') {
                     // This query involves product categories
-                    error_log("SLS Category Filter: Found product_cat query");
                     // We don't modify the query itself, just let our term filters handle it
                     break;
                 }
             }
         }
+    }
+
+    public function filter_woodmart_search_suggestions() {
+        
+        // Add our locale filter to WP_Query for this AJAX request
+        add_action('pre_get_posts', [$this, 'filter_search_query_by_locale'], 1);
+    }
+    
+    /**
+     * Filter search query by locale (only for AJAX search)
+     */
+    public function filter_search_query_by_locale($query) {
+        // Only filter if this is a search query and we have a search term
+        if (!$query->get('s') || !isset($_REQUEST['query'])) {
+            return;
+        }
+        
+        $current_locale = $this->manager->get_current_locale();
+        
+        // Get existing meta query
+        $existing_meta_query = $query->get('meta_query');
+        if (!is_array($existing_meta_query)) {
+            $existing_meta_query = [];
+        }
+        
+        // Add our locale filtering
+        $locale_meta_query = [
+            'relation' => 'OR',
+            [
+                'key'     => 'language_locale',
+                'value'   => $current_locale,
+                'compare' => '='
+            ],
+            [
+                'key'     => 'language_locale',
+                'value'   => 'all',
+                'compare' => '='
+            ],
+            [
+                'key'     => 'language_locale',
+                'compare' => 'NOT EXISTS'
+            ]
+        ];
+        
+        // Combine with existing meta queries if any
+        if (!empty($existing_meta_query)) {
+            $new_meta_query = [
+                'relation' => 'AND',
+                $existing_meta_query,
+                $locale_meta_query
+            ];
+        } else {
+            $new_meta_query = $locale_meta_query;
+        }
+        
+        $query->set('meta_query', $new_meta_query);
     }
     
     /**
@@ -567,8 +540,6 @@ class SLS_Content_Filter {
         )";
         
         $where .= $wpdb->prepare($locale_where, $current_locale);
-        
-        error_log("SLS Blog Nav: Filtered adjacent post WHERE for locale: {$current_locale}");
         
         return $where;
     }

@@ -15,7 +15,8 @@ class SLS_Theme_Integration {
 
         add_filter('wp_nav_menu_objects', [$this, 'translate_menu_items'], 10, 2);
 
-        add_action('wp_footer', [$this, 'replace_comment_form_js']);
+        add_action('comment_form_before', [$this, 'start_comment_form_override'], 1);
+        add_action('comment_form_after', [$this, 'end_comment_form_override'], 999);
     }
 
     // FIXED: Add public keyword and proper method name
@@ -49,30 +50,6 @@ class SLS_Theme_Integration {
             }
         }
         return '';
-    }
-
-    public function replace_comment_form_js() {
-        // Only on single blog posts
-        if (!is_single() || get_post_type() !== 'post') {
-            return;
-        }
-        ?>
-        <script type="text/javascript">
-        jQuery(document).ready(function($) {
-            // Hide the default comment form
-            $('#comments').hide();
-            
-            // Insert your custom form after the comments list
-            var customForm = `<?php echo str_replace(["\n", "\r"], '', addslashes($this->comment_form_shortcode())); ?>`;
-            
-            // Try different selectors to find where to insert
-            if ($('#comments').length) {
-                $('#comments').append(customForm);
-            }
-            
-        });
-        </script>
-        <?php
     }
 
     // FIXED: Add public keyword
@@ -127,7 +104,6 @@ class SLS_Theme_Integration {
         return ob_get_clean();
     }
 
-    // FIXED: Add public keyword
     public function translate_menu_items($items, $args) {
         if (is_admin()) return $items;
         
@@ -173,7 +149,6 @@ class SLS_Theme_Integration {
         return $items;
     }
 
-    // FIXED: Add private keyword and $this-> reference
     private function add_current_menu_item_class($menu_item, $original_path, $current_url, $current_locale) {
         // Remove existing current classes first
         $menu_item->classes = array_filter($menu_item->classes, function($class) {
@@ -224,7 +199,6 @@ class SLS_Theme_Integration {
         return $menu_item;
     }
 
-    // FIXED: Add private keyword
     private function map_url_to_locale($original_url, $locale) {
         // Skip if it's en_US (default language)
         if ($locale === 'en_US') {
@@ -307,7 +281,7 @@ class SLS_Theme_Integration {
         return $output;
     }
 
-    public function comment_form_shortcode($atts) {
+    public function comment_form_shortcode($atts = []) {
         // Parse shortcode attributes
         $atts = shortcode_atts([
             'post_id' => '',
@@ -399,5 +373,24 @@ class SLS_Theme_Integration {
         <?php
         
         return ob_get_clean();
+    }
+
+    public function start_comment_form_override() {
+        // Only on single blog posts
+        if (is_single() && get_post_type() === 'post') {
+            // Start output buffering to capture the default form
+            ob_start();
+        }
+    }
+    
+    public function end_comment_form_override() {
+        // Only on single blog posts
+        if (is_single() && get_post_type() === 'post') {
+            // Discard the captured default form
+            ob_end_clean();
+            
+            // Output your custom form instead
+            echo $this->comment_form_shortcode();
+        }
     }
 }

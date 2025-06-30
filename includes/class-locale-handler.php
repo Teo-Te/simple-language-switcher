@@ -22,8 +22,6 @@ class SLS_Locale_Handler {
         $manager = new SLS_Language_Manager();
         $this->current_locale = $manager->get_current_locale();
         
-        error_log("SLS Locale Handler: Setting FRONTEND locale to {$this->current_locale}");
-        
         return $this->current_locale;
     }
     
@@ -34,8 +32,6 @@ class SLS_Locale_Handler {
             $manager = new SLS_Language_Manager();
             $this->current_locale = $manager->get_current_locale();
         }
-        
-        error_log("SLS Locale Handler: Loading textdomains for {$this->current_locale}");
         
         // Unload existing textdomains
         unload_textdomain('woocommerce');
@@ -52,7 +48,6 @@ class SLS_Locale_Handler {
             foreach ($woo_paths as $path) {
                 if (file_exists($path)) {
                     load_textdomain('woocommerce', $path);
-                    error_log("SLS Locale Handler: Loaded WooCommerce from: {$path}");
                     break;
                 }
             }
@@ -68,15 +63,12 @@ class SLS_Locale_Handler {
         foreach ($theme_paths as $path) {
             if (file_exists($path)) {
                 load_textdomain('woodmart', $path);
-                error_log("SLS Locale Handler: Loaded Woodmart from: {$path}");
                 break;
             }
         }
     }
     
     public function reload_textdomains() {
-        error_log("SLS Locale Handler: Reloading textdomains after AJAX language change");
-        
         // Reset current locale
         $this->current_locale = null;
         
